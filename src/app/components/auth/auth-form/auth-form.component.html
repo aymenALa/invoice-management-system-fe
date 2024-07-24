@@ -1,0 +1,38 @@
+<div class="container" [class.right-panel-active]="isRightPanelActive">
+  <div class="form__container signup__container">
+    <form (ngSubmit)="onSignUp()">
+      <h1>Create Account</h1>
+      <input type="text" placeholder="Username" [(ngModel)]="signUpUsername" name="signUpUsername" required>
+      <input type="text" placeholder="First Name" [(ngModel)]="signUpFirstName" name="signUpFirstName" required>
+      <input type="text" placeholder="Last Name" [(ngModel)]="signUpLastName" name="signUpLastName" required>
+      <input type="email" placeholder="Email" [(ngModel)]="signUpEmail" name="signUpEmail" required>
+      <input type="password" placeholder="Password" [(ngModel)]="signUpPassword" name="signUpPassword" required>
+      <button type="submit" class="btn">Sign Up</button>
+      <p *ngIf="signUpError" class="error-message">{{ signUpError }}</p>
+    </form>
+  </div>
+  <div class="form__container signin__container">
+    <form (ngSubmit)="onSignIn()">
+      <h1>Sign in</h1>
+      <input type="email" placeholder="Email" [(ngModel)]="signInEmail" name="signInEmail" required>
+      <input type="password" placeholder="Password" [(ngModel)]="signInPassword" name="signInPassword" required>
+      <a href="#" class="forgot__password">Forgot your password?</a>
+      <button type="submit" class="btn">Sign In</button>
+      <p *ngIf="signInError" class="error-message">{{ signInError }}</p>
+    </form>
+  </div>
+  <div class="overlay__container">
+    <div class="overlay__wrapper">
+      <div class="overlay__panel overlay__panel__left">
+        <h1>Welcome Back!</h1>
+        <p>To keep connected with us please login with your personal info</p>
+        <button class="btn ghost" (click)="togglePanel()">Sign In</button>
+      </div>
+      <div class="overlay__panel overlay__panel__right">
+        <h1>Hello, Friend!</h1>
+        <p>Enter your personal details and start journey with us</p>
+        <button class="btn ghost" (click)="togglePanel()">Sign Up</button>
+      </div>
+    </div>
+  </div>
+</div>
