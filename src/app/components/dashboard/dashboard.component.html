@@ -1,58 +1,61 @@
 <div class="dashboard-container">
-  <header>
-    <h1>Welcome, {{ username }}!</h1>
-    <div class="quick-actions">
-      <button routerLink="/invoices/new" class="btn-primary">Create Invoice</button>
-      <button routerLink="/invoices" class="btn-secondary">View All Invoices</button>
-    </div>
+  <header class="dashboard-header">
+    <h1>Welcome, {{username || 'User' }}!</h1>
   </header>
 
-  <div class="dashboard-grid">
-    <section class="financial-overview">
-      <h2>Financial Overview</h2>
-      <div class="stats-container">
-        <div class="stat-card">
-          <h3>Total Invoices</h3>
-          <p>{{ totalInvoices }}</p>
-        </div>
-        <div class="stat-card">
-          <h3>Total Amount</h3>
-          <p>${{ totalAmount.toFixed(2) }}</p>
-        </div>
-        <div class="stat-card">
-          <h3>Pending Invoices</h3>
-          <p>{{ pendingInvoices }}</p>
-        </div>
-      </div>
-      <div class="chart-container">
-        <canvas id="revenueChart"></canvas>
-      </div>
-    </section>
-
-    <section class="recent-invoices">
-      <h2>Recent Invoices</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let invoice of recentInvoices">
-            <td>{{ invoice.client }}</td>
-            <td>${{ invoice.amount.toFixed(2) }}</td>
-            <td>{{ invoice.date }}</td>
-            <td [ngClass]="{'status-paid': invoice.status === 'Paid',
-                            'status-pending': invoice.status === 'Pending',
-                            'status-overdue': invoice.status === 'Overdue'}">
-              {{ invoice.status }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+  <div class="dashboard-summary">
+    <div class="summary-card">
+      <h2>Total Invoices</h2>
+      <p class="summary-value">{{ dashboardData?.totalInvoices }}</p>
+    </div>
+    <div class="summary-card">
+      <h2>Total Amount</h2>
+      <p class="summary-value">{{ dashboardData?.totalAmount | number:'1.2-2' }} €</p>
+    </div>
+    <div class="summary-card">
+      <h2>Overdue Invoices</h2>
+      <p class="summary-value">{{ dashboardData?.overdueInvoices }}</p>
+    </div>
   </div>
+
+  <div class="charts-container">
+    <div class="chart-wrapper">
+      <h2>Invoice Amounts</h2>
+      <canvas id="revenueChart"></canvas>
+    </div>
+    <div class="chart-wrapper">
+      <h2>Invoice Status</h2>
+      <canvas id="statusChart"></canvas>
+    </div>
+  </div>
+
+  <h2>Recent Invoices</h2>
+  <table class="invoice-table">
+    <thead>
+      <tr>
+        <th>Invoice Number</th>
+        <th>Issue Date</th>
+        <th>Due Date</th>
+        <th>Total Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let invoice of recentInvoices">
+        <td>{{ invoice.invoiceNumber }}</td>
+        <td>{{ invoice.issueDate | date:'mediumDate' }}</td>
+        <td>{{ invoice.dueDate | date:'mediumDate' }}</td>
+        <td>{{ invoice.totalAmount | number:'1.2-2' }} €</td>
+        <td>
+          <span class="status-badge" [ngClass]="invoice.status.toLowerCase()">
+            {{ invoice.status }}
+          </span>
+        </td>
+        <td>
+          <a [routerLink]="['/invoices', invoice.id]" class="view-link">View Details</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>

@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { DashboardService } from '../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../services/auth.service';
-import { Chart } from 'chart.js/auto';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
@@ -12,43 +15,51 @@ import { Chart } from 'chart.js/auto';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  username: string = '';
-  totalInvoices: number = 0;
-  totalAmount: number = 0;
-  pendingInvoices: number = 0;
+  dashboardData: any = {};
   recentInvoices: any[] = [];
+  barChart: any;
+  pieChart: any;
+  username: string | null = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(private dashboardService: DashboardService,
+              private authService: AuthService
+    ) { }
 
   ngOnInit() {
-    this.fetchDashboardData();
-    this.initCharts();
+    this.loadDashboardData();
+    this.username = this.authService.getUsername();
   }
 
-  fetchDashboardData() {
-    // Simulate API call
-    this.username = 'John Doe';
-    this.totalInvoices = 150;
-    this.totalAmount = 15000;
-    this.pendingInvoices = 30;
-    this.recentInvoices = [
-      { id: 1, client: 'ABC Corp', amount: 1500, date: '2024-07-20', status: 'Paid' },
-      { id: 2, client: 'XYZ Ltd', amount: 2000, date: '2024-07-22', status: 'Pending' },
-      { id: 3, client: '123 Industries', amount: 1000, date: '2024-07-23', status: 'Overdue' },
-    ];
+  loadDashboardData() {
+    this.dashboardService.getDashboardData().subscribe(
+      data => {
+        this.dashboardData = data;
+        this.recentInvoices = data.recentInvoices || [];
+        this.initCharts();
+      },
+      error => console.error('Error loading dashboard data:', error)
+    );
   }
 
   initCharts() {
+    if (this.recentInvoices.length > 0) {
+      this.initBarChart();
+      this.initPieChart();
+    }
+  }
+
+  initBarChart() {
     const ctx = document.getElementById('revenueChart') as HTMLCanvasElement;
-    new Chart(ctx, {
-      type: 'line',
+    this.barChart = new Chart(ctx, {
+      type: 'bar',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: this.recentInvoices.map(invoice => invoice.invoiceNumber),
         datasets: [{
-          label: 'Revenue',
-          data: [1200, 1900, 3000, 5000, 4000, 6000],
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
+          label: 'Invoice Amounts',
+          data: this.recentInvoices.map(invoice => invoice.totalAmount),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
         }]
       },
       options: {
@@ -56,6 +67,42 @@ export class DashboardComponent implements OnInit {
         scales: {
           y: {
             beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+
+  initPieChart() {
+    const ctx = document.getElementById('statusChart') as HTMLCanvasElement;
+    const statusCounts = this.recentInvoices.reduce((acc, invoice) => {
+      acc[invoice.status] = (acc[invoice.status] || 0) + 1;
+      return acc;
+    }, {});
+
+    this.pieChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(statusCounts),
+        datasets: [{
+          data: Object.values(statusCounts),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+          ],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Invoice Status Distribution'
           }
         }
       }

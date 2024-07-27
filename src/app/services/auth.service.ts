@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 
 interface LoginResponse {
   token: string;
+  username: string;
 }
 
 @Injectable({
@@ -13,6 +14,7 @@ interface LoginResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
   private tokenKey = 'auth_token';
+  private usernameKey= 'auth_username';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   constructor(private http: HttpClient) {}
@@ -25,6 +27,7 @@ export class AuthService {
         tap(response => {
           if (response && response.token) {
             localStorage.setItem(this.tokenKey, response.token);
+            localStorage.setItem(this.usernameKey, response.username);
             this.isAuthenticatedSubject.next(true);
           }
         })
@@ -33,6 +36,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.usernameKey);
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -42,6 +46,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  getUsername(): string | null {
+    return localStorage.getItem(this.usernameKey);
   }
 
   private hasToken(): boolean {

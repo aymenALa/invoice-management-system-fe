@@ -1,0 +1,2 @@
+root: C:\Users\ayman\invoice-management-system-FE\nvm
+path: C:\Program Files\nodejs

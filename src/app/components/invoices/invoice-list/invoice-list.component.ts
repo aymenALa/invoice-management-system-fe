@@ -1,95 +1,72 @@
 import { Component, OnInit } from '@angular/core';
 import { InvoiceService } from '../../../services/invoice.service';
-import { DatePipe, NgFor } from '@angular/common';
+import { Router } from '@angular/router';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-invoice-list',
   templateUrl: './invoice-list.component.html',
   styleUrls: ['./invoice-list.component.css'],
-  imports: [DatePipe, NgFor],
-  standalone: true
+  standalone: true,
+  imports: [CommonModule, DatePipe, CurrencyPipe]
 })
 export class InvoiceListComponent implements OnInit {
   invoices: any[] = [];
 
-  constructor(private invoiceService: InvoiceService) { }
+  constructor(private invoiceService: InvoiceService, public router: Router) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadInvoices();
   }
 
-  loadInvoices() {
+  loadInvoices(): void {
     this.invoiceService.getInvoices().subscribe(
-      data => this.invoices = data,
-      error => console.error('Error loading invoices', error)
-    );
-  }
-
-  createInvoice() {
-    // This is a placeholder. In a real application, you'd open a modal or navigate to a create invoice page
-    const newInvoice = {
-      clientName: 'New Client',
-      amount: 0,
-      date: new Date(),
-      status: 'PENDING'
-    };
-
-    this.invoiceService.createInvoice(newInvoice).subscribe(
-      createdInvoice => {
-        console.log('Invoice created successfully', createdInvoice);
-        this.loadInvoices(); // Refresh the list
+      response => {
+        console.log('Raw response:', response); // Log the raw response
+        if (Array.isArray(response)) {
+          this.invoices = response;
+        } else if (response && response.content && Array.isArray(response.content)) {
+          this.invoices = response.content;
+        } else {
+          console.error('Unexpected response format:', response);
+          this.invoices = [];
+        }
+        console.log('Processed invoices:', this.invoices);
       },
-      error => console.error('Error creating invoice', error)
+      error => {
+        console.error('Error loading invoices', error);
+        if (error.error instanceof ErrorEvent) {
+          // Client-side or network error occurred
+          console.error('An error occurred:', error.error.message);
+        } else {
+          // Backend returned an unsuccessful response code
+          console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+      }
     );
   }
 
-  updateInvoice(id: number) {
-    // This is a placeholder. In a real application, you'd open a modal or navigate to an update invoice page
-    const updatedInvoice = {
-      clientName: 'Updated Client',
-      amount: 100,
-      date: new Date(),
-      status: 'PAID'
-    };
-
-    this.invoiceService.updateInvoice(id, updatedInvoice).subscribe(
-      updated => {
-        console.log('Invoice updated successfully', updated);
-        this.loadInvoices(); // Refresh the list
-      },
-      error => console.error('Error updating invoice', error)
-    );
+  deleteInvoice(id: number): void {
+    if (confirm('Are you sure you want to delete this invoice?')) {
+      this.invoiceService.deleteInvoice(id).subscribe(
+        () => {
+          console.log('Invoice deleted successfully');
+          this.loadInvoices();
+        },
+        error => console.error('Error deleting invoice', error)
+      );
+    }
   }
 
-  deleteInvoice(id: number) {
-    this.invoiceService.deleteInvoice(id).subscribe(
-      () => {
-        console.log('Invoice deleted successfully');
-        this.loadInvoices(); // Refresh the list
-      },
-      error => console.error('Error deleting invoice', error)
-    );
-  }
-
-  downloadInvoicePdf(id: number) {
-    this.invoiceService.getInvoicePdf(id).subscribe(
-      (pdfBlob: Blob) => {
-        const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+  downloadInvoicePdf(id: number): void {
+    this.invoiceService.downloadInvoicePdf(id).subscribe(
+      (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         window.open(url);
       },
       error => console.error('Error downloading PDF', error)
-    );
-  }
-
-  downloadClientInvoicesPdf(clientId: number) {
-    this.invoiceService.getClientInvoicesPdf(clientId).subscribe(
-      (pdfBlob: Blob) => {
-        const blob = new Blob([pdfBlob], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        window.open(url);
-      },
-      error => console.error('Error downloading client invoices PDF', error)
     );
   }
 }
