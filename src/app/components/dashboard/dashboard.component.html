@@ -29,6 +29,29 @@
     </div>
   </div>
 
+  <div class="clients-section">
+    <h2>Recent Clients</h2>
+    <table class="client-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let client of recentClients">
+          <td>{{ client.name }}</td>
+          <td>{{ client.email }}</td>
+          <td>
+            <button (click)="viewClientInvoices(client.id)" class="btn-view-invoices">View Invoices</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <a [routerLink]="['/clients']" class="view-all-link">View All Clients</a>
+  </div>
+
   <h2>Recent Invoices</h2>
   <table class="invoice-table">
     <thead>

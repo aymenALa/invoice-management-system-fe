@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../services/auth.service';
+import { InvoiceService } from '../../services/invoice.service';
+import { ClientService } from '../../services/client.service';
 
 Chart.register(...registerables);
 
@@ -19,14 +21,23 @@ export class DashboardComponent implements OnInit {
   recentInvoices: any[] = [];
   barChart: any;
   pieChart: any;
+  clients: any[] = [];
+  totalInvoices: number = 0;
+  totalAmount: number = 0;
   username: string | null = null;
+  recentClients: any[] = [];
 
-  constructor(private dashboardService: DashboardService,
-              private authService: AuthService
-    ) { }
+  constructor(
+    private dashboardService: DashboardService,
+    private clientService: ClientService,
+    private invoiceService: InvoiceService,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.loadDashboardData();
+    this.loadClients();
     this.username = this.authService.getUsername();
   }
 
@@ -35,10 +46,27 @@ export class DashboardComponent implements OnInit {
       data => {
         this.dashboardData = data;
         this.recentInvoices = data.recentInvoices || [];
+        this.totalInvoices = data.totalInvoices || 0;
+        this.totalAmount = data.totalAmount || 0;
         this.initCharts();
       },
       error => console.error('Error loading dashboard data:', error)
     );
+  }
+
+  loadClients(): void {
+    this.clientService.getClients().subscribe(
+      data => {
+        this.clients = data;
+        this.recentClients = data.slice(0, 5); // Get only the first 5 clients
+      },
+      error => console.error('Error loading clients', error)
+    );
+  }
+
+
+  viewClientInvoices(clientId: number): void {
+    this.router.navigate(['/clients', clientId, 'invoices']);
   }
 
   initCharts() {

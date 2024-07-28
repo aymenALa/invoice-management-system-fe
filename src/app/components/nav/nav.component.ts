@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
         <a routerLink="/dashboard" class="text-white font-bold">Invoice App</a>
         <ul class="flex space-x-4">
           <li><a routerLink="/dashboard" class="text-white">Dashboard</a></li>
+          <li><a routerLink="/clients" class="text-white">Clients</a></li>
           <li><a routerLink="/invoices" class="text-white">Invoices</a></li>
           <li><button (click)="logout()" class="text-white">Logout</button></li>
         </ul>
