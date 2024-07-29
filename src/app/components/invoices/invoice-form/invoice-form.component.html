@@ -23,7 +23,7 @@
         Selected Client: {{ selectedClient.name }}
         <span *ngIf="selectedClient.email"> - {{ selectedClient.email }}</span>
       </p>
-      <button type="button" (click)="toggleClientForm()" class="mt-2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+      <button type="button" (click)="toggleClientForm()" class="mt-2 bg-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" style="background-color: #27b397;">
         Add New Client
       </button>
       <div *ngIf="isEditMode" class="mt-4 p-4 bg-gray-100 rounded">

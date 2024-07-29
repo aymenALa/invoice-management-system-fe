@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { InvoiceService } from '../../../services/invoice.service';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-invoice-list',
@@ -49,15 +50,37 @@ export class InvoiceListComponent implements OnInit {
   }
 
   deleteInvoice(id: number): void {
-    if (confirm('Are you sure you want to delete this invoice?')) {
-      this.invoiceService.deleteInvoice(id).subscribe(
-        () => {
-          console.log('Invoice deleted successfully');
-          this.loadInvoices();
-        },
-        error => console.error('Error deleting invoice', error)
-      );
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this invoice!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.invoiceService.deleteInvoice(id).subscribe(
+          () => {
+            console.log('Invoice deleted successfully');
+            this.loadInvoices();
+            Swal.fire(
+              'Deleted!',
+              'The invoice has been deleted.',
+              'success'
+            );
+          },
+          error => {
+            console.error('Error deleting invoice', error);
+            Swal.fire(
+              'Error!',
+              'There was an error deleting the invoice.',
+              'error'
+            );
+          }
+        );
+      }
+    });
   }
 
   downloadInvoicePdf(id: number): void {

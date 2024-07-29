@@ -12,11 +12,11 @@ export const routes: Routes = [
   { path: 'auth', component: AuthFormComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'invoices', component: InvoiceListComponent, canActivate: [authGuard] },
+  { path: 'invoices/new', component: InvoiceFormComponent, canActivate: [authGuard] },
+  { path: 'invoices/:id', component: InvoiceDetailComponent, canActivate: [authGuard] },
+  { path: 'invoices/:id/edit', component: InvoiceFormComponent, canActivate: [authGuard] },
+  { path: 'clients/:id/invoices', component: ClientInvoicesComponent, canActivate: [authGuard] },
+  { path: 'clients', component: ClientsListComponent, canActivate: [authGuard] },
   { path: '', redirectTo: '/auth', pathMatch: 'full' },
-  { path: 'invoices', component: InvoiceListComponent },
-  { path: 'invoices/new', component: InvoiceFormComponent },
-  { path: 'invoices/:id', component: InvoiceDetailComponent },
-  { path: 'invoices/:id/edit', component: InvoiceFormComponent },
-  { path: 'clients/:id/invoices', component: ClientInvoicesComponent },
-  { path: 'clients', component: ClientsListComponent }
+  { path: '**', redirectTo: '/auth', pathMatch: 'full' }
 ];

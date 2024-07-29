@@ -125,6 +125,14 @@ input {
   transition: transform 0.6s ease-in-out;
   z-index: 100;
 }
+ .logo-auth{
+  position: absolute;
+  z-index: 100;
+  margin: 20px auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
+ }
 
 .container.right-panel-active .overlay__container{
   transform: translateX(-100%);

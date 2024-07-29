@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit {
     this.clientService.getClients().subscribe(
       data => {
         this.clients = data;
-        this.recentClients = data.slice(0, 5); // Get only the first 5 clients
+        this.recentClients = data.slice(0, 4); // Get only the first 5 clients
       },
       error => console.error('Error loading clients', error)
     );

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '../../../services/invoice.service';
 import { ClientService } from '../../../services/client.service';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-invoice-form',
@@ -97,26 +98,31 @@ export class InvoiceFormComponent implements OnInit {
         client: formValue.clientId ? { id: formValue.clientId } : null
       };
 
-      if (this.isEditMode) {
-        invoice.id = this.invoiceId;
-      }
 
-      console.log('Formatted invoice for submission:', invoice);
+    const operation = this.isEditMode
+    ? this.invoiceService.updateInvoice(this.invoiceId!, invoice)
+    : this.invoiceService.createInvoice(invoice);
 
-      const operation = this.isEditMode
-        ? this.invoiceService.updateInvoice(this.invoiceId!, invoice)
-        : this.invoiceService.createInvoice(invoice);
-
-      operation.subscribe(
-        (response) => {
-          console.log(`Invoice ${this.isEditMode ? 'updated' : 'created'} successfully`, response);
-          this.router.navigate(['/invoices']);
-        },
-        error => {
-          console.error(`Error ${this.isEditMode ? 'updating' : 'creating'} invoice`, error);
-          alert(error.error.message || `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`);
-        }
-      );
+  operation.subscribe(
+    (response) => {
+      Swal.fire({
+        title: 'Success',
+        text: `Invoice ${this.isEditMode ? 'updated' : 'created'} successfully`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        this.router.navigate(['/invoices']);
+      });
+    },
+    error => {
+      Swal.fire({
+        title: 'Error',
+        text: error.error.message || `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    }
+  );
     } else {
       console.log('Form is invalid. Errors:', this.invoiceForm.errors);
       Object.keys(this.invoiceForm.controls).forEach(key => {
@@ -133,6 +139,7 @@ export class InvoiceFormComponent implements OnInit {
     this.showClientForm = !this.showClientForm;
   }
 
+
   createClient(): void {
     if (this.clientForm.valid) {
       this.clientService.createClient(this.clientForm.value).subscribe(
@@ -142,10 +149,20 @@ export class InvoiceFormComponent implements OnInit {
           this.invoiceForm.patchValue({ clientId: newClient.id });
           this.showClientForm = false;
           this.clientForm.reset();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Client created successfully.',
+          });
         },
         error => {
           console.error('Error creating client', error);
-          alert(error.error.message || 'An error occurred while creating the client.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.error.message || 'An error occurred while creating the client.',
+          });
         }
       );
     }

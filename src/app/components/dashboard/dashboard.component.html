@@ -25,12 +25,12 @@
     </div>
     <div class="chart-wrapper">
       <h2>Invoice Status</h2>
-      <canvas id="statusChart"></canvas>
+      <canvas id="statusChart" ></canvas>
     </div>
   </div>
 
   <div class="clients-section">
-    <h2>Recent Clients</h2>
+    <h2 class="dash-title">Recent Clients</h2>
     <table class="client-table">
       <thead>
         <tr>
@@ -44,41 +44,49 @@
           <td>{{ client.name }}</td>
           <td>{{ client.email }}</td>
           <td>
-            <button (click)="viewClientInvoices(client.id)" class="btn-view-invoices">View Invoices</button>
+            <button (click)="viewClientInvoices(client.id)" class="btn-view-invoices">
+
+              <i class="fa-solid fa-eye"></i>
+              <span class="button-text"></span>
+
+            View Invoices</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <a [routerLink]="['/clients']" class="view-all-link">View All Clients</a>
+    <br>
+    <a [routerLink]="['/clients']" class="view-all-link mt-2"> <i class="fa-solid fa-circle-chevron-down"  style="color: #27b397;"></i>  See More...</a>
   </div>
 
-  <h2>Recent Invoices</h2>
-  <table class="invoice-table">
-    <thead>
-      <tr>
-        <th>Invoice Number</th>
-        <th>Issue Date</th>
-        <th>Due Date</th>
-        <th>Total Amount</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let invoice of recentInvoices">
-        <td>{{ invoice.invoiceNumber }}</td>
-        <td>{{ invoice.issueDate | date:'mediumDate' }}</td>
-        <td>{{ invoice.dueDate | date:'mediumDate' }}</td>
-        <td>{{ invoice.totalAmount | number:'1.2-2' }} €</td>
-        <td>
-          <span class="status-badge" [ngClass]="invoice.status.toLowerCase()">
-            {{ invoice.status }}
-          </span>
-        </td>
-        <td>
-          <a [routerLink]="['/invoices', invoice.id]" class="view-link">View Details</a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="invoice-section">
+    <h2 class="dash-title">Recent Invoices</h2>
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>Invoice Number</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of recentInvoices">
+          <td>{{ invoice.invoiceNumber }}</td>
+          <td>{{ invoice.issueDate | date:'mediumDate' }}</td>
+          <td>{{ invoice.dueDate | date:'mediumDate' }}</td>
+          <td>{{ invoice.totalAmount | number:'1.2-2' }} €</td>
+          <td>
+            <span class="status-badge" [ngClass]="invoice.status.toLowerCase()">
+              {{ invoice.status }}
+            </span>
+          </td>
+          <td>
+            <a [routerLink]="['/invoices', invoice.id]" class="view-link"> <i class="fa-solid fa-circle-info"></i>  Details</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
