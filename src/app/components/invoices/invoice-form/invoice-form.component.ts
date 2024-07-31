@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
   imports: [CommonModule, ReactiveFormsModule]
 })
 export class InvoiceFormComponent implements OnInit {
+[x: string]: any;
   invoiceForm: FormGroup;
   clientForm: FormGroup;
   clients: any[] = [];
@@ -29,20 +30,20 @@ export class InvoiceFormComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router
   ) {
+    this.clientForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$')]],
+      address: ['', Validators.required],
+      phoneNumber: ['', [Validators.required, Validators.pattern('^\\+?[0-9]{10,14}$')]]
+    });
+
     this.invoiceForm = this.fb.group({
       invoiceNumber: ['', Validators.required],
-      clientId: [''], // Remove Validators.required
       issueDate: ['', Validators.required],
       dueDate: ['', Validators.required],
       totalAmount: ['', [Validators.required, Validators.min(0)]],
-      status: ['', Validators.required]
-    });
-
-    this.clientForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      address: ['', Validators.required],
-      phoneNumber: ['', Validators.required]
+      status: ['', Validators.required],
+      clientId: ['']
     });
   }
 
@@ -98,38 +99,46 @@ export class InvoiceFormComponent implements OnInit {
         client: formValue.clientId ? { id: formValue.clientId } : null
       };
 
+      const operation = this.isEditMode
+        ? this.invoiceService.updateInvoice(this.invoiceId!, invoice)
+        : this.invoiceService.createInvoice(invoice);
 
-    const operation = this.isEditMode
-    ? this.invoiceService.updateInvoice(this.invoiceId!, invoice)
-    : this.invoiceService.createInvoice(invoice);
-
-  operation.subscribe(
-    (response) => {
-      Swal.fire({
-        title: 'Success',
-        text: `Invoice ${this.isEditMode ? 'updated' : 'created'} successfully`,
-        icon: 'success',
-        confirmButtonText: 'OK'
-      }).then(() => {
-        this.router.navigate(['/invoices']);
-      });
-    },
-    error => {
-      Swal.fire({
-        title: 'Error',
-        text: error.error.message || `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`,
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
-    }
-  );
+      operation.subscribe(
+        (response) => {
+          Swal.fire({
+            title: 'Success',
+            text: `Invoice ${this.isEditMode ? 'updated' : 'created'} successfully`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            this.router.navigate(['/invoices']);
+          });
+        },
+        error => {
+          Swal.fire({
+            title: 'Error',
+            text: error.error.message || `An error occurred while ${this.isEditMode ? 'updating' : 'creating'} the invoice.`,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      );
     } else {
+      this.invoiceForm.markAllAsTouched();
       console.log('Form is invalid. Errors:', this.invoiceForm.errors);
+
       Object.keys(this.invoiceForm.controls).forEach(key => {
         const control = this.invoiceForm.get(key);
         if (control?.invalid) {
           console.log(`${key} is invalid:`, control.errors);
         }
+      });
+
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please fill out all required fields correctly.',
+        icon: 'warning',
+        confirmButtonText: 'OK'
       });
     }
   }
